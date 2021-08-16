@@ -1,4 +1,4 @@
-function [nn ocnts] = words2nnOcnts(words, BINARIZE)
+function [nn,ocnts] = words2nnOcnts(words, BINARIZE)
 % [nn ocnts] = words2nnOcnts(words, BINARIZE)
 %
 % Returns the histogram & spike counts of the matrix words, where 
@@ -27,19 +27,11 @@ else
     nAlphabet = max(words(:)) + 1;
 end
 
-% if we have the C-MEX compiled
-if exist('discreteTimeSeries2Words') == 3 % this is the mex file option
-    if issparse(words); words = full(words); end
-    if ~isinteger(words); words = uint16(words); end
-    x = discreteTimeSeries2Words(words', nAlphabet);
-    [nn bin] = histc(x, unique(x));
-else
-    warning('words2nnOcnts:slow', 'Using words2multiplicities (slower). Consider compiling discreteTimeSeries2Words for faster processing.\n')
-    [~,~,nn,bin] = words2multiplicities(words, nAlphabet);     
-end
+warning('words2nnOcnts:slow', 'Using words2multiplicities (slower). Consider compiling discreteTimeSeries2Words for faster processing.\n')
+[~,~,nn,bin] = words2multiplicities(words, nAlphabet);     
+
 
 % find the number of spikes in each unique word
 [~, IA] = unique(bin);
 ocnts = full(sum(words(IA,:), 2));
-
 end
